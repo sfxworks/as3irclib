@@ -1,0 +1,25 @@
+#summary One-sentence summary of this page.
+
+= Introduction =
+
+Add your content here.
+
+
+= Details =
+
+Add your content here.  Format your content with:
+  * Text in *bold* or _italic_
+  * Headings, paragraphs, and lists
+  * Automatic links to other wiki pages
+
+= Design =
+
+Martyr is designed to be flexible and extendable, rather than fast or small, in terms of number of classes. Information from the server is stored in the ClientState and Commands are parsed and sent out from the IRCConnection class as events. For example, every command that is sent to or from the server is represented as an object. The class of a command is intended to contain all of the knowledge required to deal with that command. Command classes can generate instances of a command and they know how a command affects the client state. Commands are sent as events to command listeners, in a fashion similar to how AWT events work.
+
+A number of classes that provide common functionality are provided. These classes include:
+
+   1. AutoReconnect - Maintains a connection to a server.
+   2. AutoJoin - Maintains a presence in a channel.
+   3. AutoRegister - Registers on the network, including different nick attempts.
+   4. AutoResponder - Provides "reflex" functions, such as responding to pings and asking for a channel's mode upon joining.
+   5. AutoDccSetup - Listens for notifications of DCC connections and aids in setting them up. 
