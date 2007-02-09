@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application 
+	xmlns:mx="http://www.adobe.com/2006/mxml" 
+	layout="absolute" 
+	applicationComplete="init();">
+<mx:Script>
+	<![CDATA[
+		import mx.automation.IAutomationObject;
+		import com.fleo.irc.IRC;
+		import com.fleo.irc.events.*;
+		
+		public var irc:IRC
+		
+		public function init():void
+		{
+			irc = new IRC();
+			irc.connect("irc.freenode.net",6667,"test");
+			irc.addEventListener(IRC.EVENT_STATUSMESSAGE,statusMessageEventHandler);
+			irc.addEventListener(IRC.EVENT_SOCKOPEN, sockOpenEventHandler);
+			irc.addEventListener(IRC.EVENT_ERROR, errorEventHandler);
+			
+			irc.addEventListener(IRC.EVENT_SOCKERROR, sockErrorEventHandler);
+			irc.addEventListener(IRC.EVENT_ACTIVEMESSAGE, activeMessageEventHandler);
+			irc.addEventListener(IRC.EVENT_PING, pingEventHandler);
+			
+			irc.addEventListener(IRC.EVENT_NOTICE, noticeEventHandler);
+			irc.addEventListener(IRC.EVENT_JOIN, joinEventHandler);
+			irc.addEventListener(IRC.EVENT_PRIVMSG, privmsgEventHandler);
+			irc.addEventListener(IRC.EVENT_TOPIC, topicEventHandler);
+			irc.addEventListener(IRC.EVENT_MODE, modeEventHandler);
+			irc.addEventListener(IRC.EVENT_NICK, nickEventHandler);
+			irc.addEventListener(IRC.EVENT_KICK, kickEventHandler);
+			irc.addEventListener(IRC.EVENT_QUIT, quitEventHandler);
+		}
+		
+		public function noticeEventHandler(e:NoticeEvent):void { 	}
+		public function joinEventHandler(e:JoinEvent):void { }
+		public function privmsgEventHandler(e:PrivmsgEvent):void {	}
+		public function topicEventHandler(e:TopicEvent):void { }
+		public function	modeEventHandler(e:ModeEvent):void { }
+		public function nickEventHandler(e:NickEvent):void { }
+		public function kickEventHandler(e:KickEvent):void { }
+		public function quitEventHandler(e:QuitEvent):void { }
+		public function sockErrorEventHandler(e:Event):void{		}
+		public function pingEventHandler(e:Event):void {	 }
+		
+		public function errorEventHandler(e:IRCErrorEvent):void
+		{
+			traceIt("Error: "+e.message);
+		}
+		
+		public function sockOpenEventHandler(e:Event):void
+		{
+			// A utiliser avec jbouncer
+			//irc.processInput("/msg root test test");
+			//irc.processInput("/msg root create freenode irc.freenode.net");			
+		}
+		
+		public function statusMessageEventHandler(e:Event):void
+		{
+			traceIt(irc.getLastStatusMessage());	
+		}
+		
+		public function activeMessageEventHandler(e:Event):void
+		{
+			traceIt(irc.getLastActiveMessage());
+		}
+		
+		public function sendCommand():void {
+			irc.processInput(commande_txt.text);
+			commande_txt.text = "";
+		}
+		public function traceIt(ms:String):void
+		{
+			status.htmlText += ms +"<br/>";
+			status.verticalScrollPosition = status.maxVerticalScrollPosition
+		}
+	]]>
+</mx:Script>
+	<mx:Panel x="48" y="56" width="524" height="416" layout="absolute" title="AS3 IRC">
+		<mx:TabNavigator x="10" y="10" width="470" height="356">
+			<mx:Canvas label="Status" width="100%" height="326">
+				<mx:TextArea x="10" y="10" width="448" height="259" id="status"/>
+				<mx:Button x="369" y="277" label="Envoyer" click="sendCommand();"/>
+				<mx:TextInput x="10" y="277" width="351" id="commande_txt"/>
+			</mx:Canvas>
+		</mx:TabNavigator>
+	</mx:Panel>
+</mx:Application>
