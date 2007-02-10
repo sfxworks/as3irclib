@@ -1,5 +1,4 @@
-
-= Purpose = 
+= As3IRCLib = 
  * To provide a medium-level interface into the IRC protocol, for use by any kind of Flash program .
  * make sending and receiving IRC commands as painless as possible by providing Actionscript 3 objects to manipulate the commands.
  * Maintain information regarding the state of the client. This includes:
