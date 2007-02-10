@@ -1,0 +1,16 @@
+AS3IRClib is a framework not a program, it can be used as a single SWC component
+
+To compile as3irclib under, just go
+
+ant
+
+In the root directory, a as3irclib.swc will be created.
+
+If not, check build.xml file.  You might try changing the
+"build.build.properties" option to define FLEX 2 SDK framework path.
+
+
+You can also compile documentation:
+
+ant as3docs
+
