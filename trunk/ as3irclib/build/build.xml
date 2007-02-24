@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!--
+ Copyright (c) 2007 Virtual Industry <BENAOMAR YOUNES>.  Some rights reserved.
+ This work is licensed under the Creative Commons
+ Attribution-NonCommercial-ShareAlike License. To view a copy of this license,
+ visit http://creativecommons.org/licenses/by-nc-sa/1.0/ or send a letter to
+ Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+-->
+<project name="ant" default="all" basedir="..">
+
+  <taskdef resource="flexTasks.tasks" classpath="${FLEX.TASK.DIR}" /> 
+		
+  <!-- Environment specific properties -->
+  <property file="build/build.properties" />
+	
+  <!-- File properties -->
+  <property name="license.file" value="LICENSE.txt"/>
+  <property name="placeholder.file" value="placeholder.txt"/>
+  <property name="readme.file" value="README.txt"/>
+  
+  <!-- Deliverable names -->
+  <property name="pkg.swc.name" value="${project.name}-${project.version}.swc"/>
+  <property name="pkg.doc.name" value="${project.name}-doc-${project.version}.zip"/>
+  <property name="pkg.src.name" value="${project.name}-src-${project.version}.zip"/>
+  <property name="pkg.bin.name" value="${project.name}-bin-${project.version}.zip"/>
+  <property name="app.snap.name" value="${project.name}-snap-${project.version}.zip"/>
+
+  <property name="bin.dir" value="bin"/>
+  <property name="build.dir" value="build"/>
+  <property name="dist.dir" value="dist"/>
+  <property name="docs.dir" value="docs"/>
+  <property name="docs.asdoc.dir" value="${docs.dir}/asdocs"/>
+  <property name="lib.dir" value="lib"/>
+  <property name="properties.dir" value="properties"/>
+  <property name="src.dir" value="src"/>
+
+  
+  <target name="init" description="Initializes the build">
+    <tstamp/>
+    <echo message="========================"/>
+    <echo message="${project.name}-${project.version} [${TODAY}]"/>
+    <echo message="Copyright (c) ${project.year} ${project.owner}"/>
+    <echo message="========================"/>
+  </target>
+
+  <target name="compile-examples"
+          depends="init, swc-pkg"
+          description="Compiles the mxml source files">
+    <delete>
+      <fileset dir="${bin.dir}" includes="**/*.swf" defaultexcludes="no"/>
+    </delete>
+	
+		<mxmlc 
+            file="examples/App.mxml" 
+            output="${bin.dir}/App.swf"
+            actionscript-file-encoding="UTF-8"
+            keep-generated-actionscript="true"
+            incremental="true"
+        >
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+			<source-path path-element="${FLEX_HOME}/frameworks"/>
+			 <compiler.include-libraries dir="${dist.dir}" append="true">
+				<include name="${pkg.swc.name}" />
+			</compiler.include-libraries>
+		</mxmlc>
+	</target>
+	
+	<!--
+		TODO : tâche à fixer, ne fonctionne pas encore 
+	-->
+	<target name="unit-tests"
+          depends="init"
+          description="Compiles the tests ">
+		<delete>
+		  <fileset dir="${bin.dir}" includes="**/*.swf" defaultexcludes="no"/>
+		</delete>	
+		<mxmlc 
+            file="${src.dir}/tests/TestRunner.mxml" 
+            output="${bin.dir}/TestRunner.swf"
+            actionscript-file-encoding="UTF-8"
+            keep-generated-actionscript="false"
+            incremental="true"
+        >
+			<load-config filename="${FLEX_HOME}/frameworks/flex-config.xml"/>
+			<source-path path-element="${FLEX_HOME}/frameworks"/>
+			<compiler.source-path path-element="${src.dir}/tests"/>
+			<compiler.source-path path-element="${src.dir}/examples"/>
+	 
+			 <compiler.include-libraries dir="${lib.dir}" append="true">
+				<include name="flexunit.swc" />
+			</compiler.include-libraries>
+		</mxmlc>
+	</target>
+	
+	<target name="asdoc"
+          depends="init"
+          description="Generates the asdoc of the source files">
+
+		<java className="${asdoc.tool}" fork="true" failonerror="true">
+			<classpath >
+				<fileset dir="${FLEX_HOME}/asdoc/lib" includes="*.jar" />
+				<fileset dir="${FLEX_HOME}/lib" includes="*.jar" />
+			</classpath>
+			<jvmarg line="-Dapplication.home=${FLEX_HOME} -Xms32m -Xmx768m -Dsun.io.useCanonCaches=false -Xbootclasspath/p:${FLEX_HOME}/asdoc/lib/xalan.jar"/>
+			<!--
+				<arg line="-library-path+=${lib}" />
+			-->
+			<arg line="-source-path ${basedir}" />
+			<arg line="-doc-sources ${src.dir}/com/" />
+			<arg line="-main-title ${project.name}-${project.version}" />
+			<arg line="-window-title ${project.name}-${project.version}" />
+			<arg line="-output ${docs.asdoc.dir}" />
+		</java>
+
+	</target> 
+
+	<target name="swc-pkg" depends="init">
+       <compc 
+           output="${dist.dir}/${pkg.swc.name}"
+           include-classes="com.fleo.irc.core.ChannelItem
+							com.fleo.irc.core.Commands
+							com.fleo.irc.core.IRCSocket
+							com.fleo.irc.core.Mode
+							com.fleo.irc.core.Topic
+							com.fleo.irc.core.User
+							com.fleo.irc.IRC
+							com.fleo.irc.events.IRCErrorEvent
+							com.fleo.irc.events.JoinEvent
+							com.fleo.irc.events.KickEvent
+							com.fleo.irc.events.ModeEvent
+							com.fleo.irc.events.NickEvent
+							com.fleo.irc.events.NoticeEvent
+							com.fleo.irc.events.PartEvent
+							com.fleo.irc.events.PrivmsgEvent
+							com.fleo.irc.events.QuitEvent
+							com.fleo.irc.events.TopicEvent
+							com.fleo.irc.exceptions.CommandError
+							"
+       >
+           <source-path path-element="${src.dir}"/>		   
+		   <!--
+           <include-file name="main.css" path="assets/css/main.css"/>            
+		   -->
+       </compc>        
+   </target>
+   
+
+  <target name="zip-src"
+          depends="init"
+          description="Generates zip of the as source files">
+    <delete file="${dist.dir}/${pkg.src.name}"/>
+    <zip zipfile="${dist.dir}/${pkg.src.name}" whenempty="create">
+        <zipfileset prefix="${project.name}-${project.version}" dir="." includes="${src.dir}/**/*.as"/>
+       	<zipfileset prefix="${project.name}-${project.version}" dir="." includes="${bin.dir}/${placeholder.file}"/>
+    	<zipfileset prefix="${project.name}-${project.version}" dir="." includes="${build.dir}/**/*.*"/>
+    	<zipfileset prefix="${project.name}-${project.version}" dir="." includes="${dist.dir}/${placeholder.file}"/>
+       	<zipfileset prefix="${project.name}-${project.version}" dir="." includes="${docs.asdoc.dir}/${placeholder.file}"/>
+    	<zipfileset prefix="${project.name}-${project.version}" dir="${docs.dir}" includes="${license.file},${readme.file}"/>
+        <zipfileset prefix="${project.name}-${project.version}" dir="." includes="${lib.dir}/**/*.swc"/>
+    </zip>
+  </target>
+
+  <target name="zip-bin"
+          depends="swc-pkg, compile-examples"
+          description="Generates zip of the binary class files">
+    <delete file="${dist.dir}/${pkg.bin.name}"/>
+    <zip zipfile="${dist.dir}/${pkg.bin.name}">
+      <zipfileset prefix="${project.name}-${project.version}" dir="." includes="${bin.dir}/**/*.swf"/>
+      <zipfileset prefix="${project.name}-${project.version}" dir="." includes="${dist.dir}/${pkg.swc.name}"/>
+      <zipfileset prefix="${project.name}-${project.version}" dir="${docs.dir}" includes="${license.file},${readme.file}"/>
+      <zipfileset prefix="${project.name}-${project.version}" dir="." includes="${properties.dir}/${properties.file}"/>
+    </zip>
+  </target>
+
+  <target name="zip-doc"
+          depends="asdoc"
+          description="Generates the documentation zip">
+    <delete file="${dist.dir}/${pkg.doc.name}"/>
+    <zip zipfile="${dist.dir}/${pkg.doc.name}">
+    	<zipfileset prefix="${project.name}-${project.version}" dir="${docs.dir}" includes="${license.file},${readme.file}"/>
+    	<zipfileset prefix="${project.name}-${project.version}" dir="." includes="${docs.javadoc.dir}/**/*.*"/>
+    </zip>
+  </target>
+
+  <target name="all"
+          depends="swc-pkg, compile-examples, zip-src, zip-bin"
+          description="Complete build in efficient sequence"/>
+
+</project>
