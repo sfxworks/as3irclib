@@ -27,7 +27,7 @@ package fleo.net.irc;
 	import fleo.net.irc.InCommand;
 	
 	/**
-	 * CommandRegister is basically a big hashtable that maps IRC
+	 * CommandRegister is basically a big hashMap that maps IRC
 	 * identifiers to command objects that can be used as factories to
 	 * do self-parsing.  CommandRegister is also the central list of
 	 * commands.
