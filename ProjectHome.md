@@ -1,0 +1,1 @@
+AS3IRCLib is a framework (library) for the IRC Protocol, written entirely in ActionScript 3 for Flash 9 and Flex 2 programs. AS3IRCLib could be used as the foundation for a bot or a client written in Flash. The goal for the project is to have a complete IRC client framework encompassing all the features of modern IRC, but to be fully separate from any client implementation.
